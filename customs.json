@@ -1,0 +1,17 @@
+{
+    "elements": {},
+    "attributes": {
+        "th:if": {
+            "context": "div"
+        },
+        "th:action": {
+            "context": "form"
+        },
+        "th:src": {
+            "context": "iframe"
+        },
+        "th:href": {
+            "context": "a"
+        }
+    }
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Document Converter - DJ</title>
+    <style>             
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header-image img {
+            width: 80px;
+            height: 80px; 
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        p.subtitle { color: #666; margin-bottom: 30px; }
+
+        /* Style pou bouton pataje yo */
+        .buttons-top { margin-bottom: 20px; }
+        .buttons-top a {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .btn-download { background-color: #007bff; }
+        .btn-whatsapp { background-color: #25D366; }
+        .btn-telegram { background-color: #0088cc; }
+
+        form {
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: inline-block;
+            text-align: left;
+            min-width: 350px;
+            transition: opacity 0.3s;
+        }
+        form label { display: block; margin-top: 15px; font-weight: bold; }
+        form input, form select, form button {
+            margin-top: 8px; width: 100%; padding: 12px;
+            border-radius: 5px; border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        form button {
+            background-color: #28a745; color: #fff;
+            border: none; font-size: 16px;
+            cursor: pointer; margin-top: 25px;
+            font-weight: bold;
+        }
+        form button:hover { background-color: #218838; }
+
+        /* Loading Spinner */
+        #loading {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .success-msg {
+            margin-top: 30px; padding: 25px;
+            background: #fff; border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            max-width: 800px; width: 90%;
+        }
+        iframe { width: 100%; height: 500px; border: 1px solid #ddd; margin-top: 20px; border-radius: 5px; }
+        .container { display: flex; flex-direction: column; align-items: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-image">
+        <img th:src="@{/images/Princesse.jpg}" alt="Logo"/>
+    </div>
+
+    <h1>Document Converter</h1>
+    <p class="subtitle">Convertissez vos PDF en Word ou Excel rapidement.</p>
+
+    <div class="buttons-top" th:if="${resultFileUrl != null}">
+        <a th:href="${resultFileUrl}" class="btn-download" download>📥 Télécharger</a>
+        <a id="whatsappShare" href="#" target="_blank" class="btn-whatsapp">WhatsApp</a>
+        <a id="telegramShare" href="#" target="_blank" class="btn-telegram">Telegram</a>
+    </div>
+
+    <form id="convertForm" method="post" enctype="multipart/form-data" th:action="@{/convert}" onsubmit="return showLoading()">
+        <label>Choisir un fichier (PDF oswa Word) :</label>
+        <input type="file" name="file" id="fileInput" required/>
+
+        <label>Type de conversion :</label>
+        <select name="conversionType" id="conversionType" required>
+            <option value="">-- Choisir --</option>
+            <option value="pdfToWord">PDF → Word</option>
+            <option value="wordToPdf">Word → PDF</option>
+            <option value="pdfToExcel">PDF → Excel</option>
+        </select>
+
+        <button type="submit" id="submitBtn">Convertir maintenant</button>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <span>Conversion en cours, veuillez patienter...</span>
+        </div>
+    </form>
+
+    <div th:if="${resultFileUrl != null}" class="success-msg">
+        <h2 style="color: #28a745;">✅ Conversion réussie avec succès !</h2>
+        
+        <div th:if="${#strings.endsWith(resultFileUrl.toLowerCase(), '.pdf')}">
+            <p>Aperçu du PDF :</p>
+            <iframe th:src="${resultFileUrl}"></iframe>
+        </div>
+
+        <div th:if="${!#strings.endsWith(resultFileUrl.toLowerCase(), '.pdf')}">
+            <p style="background: #e9ecef; padding: 15px; border-radius: 5px;">
+                📄 <strong>Fichye ou a pare !</strong> Navigatè a pa ka montre aperçu pou Word/Excel, tanpri klike sou bouton anba a pou w telechaje l.
+            </p>
+        </div>
+
+        <br>
+        <a th:href="${resultFileUrl}" download
+           style="background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            📥 Telechaje Fichye a kounye a
+        </a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Montre loading lè itilizatè a klike
+    function showLoading() {
+        const file = document.getElementById('fileInput').value;
+        const type = document.getElementById('conversionType').value;
+        
+        if (file && type) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('convertForm').style.opacity = '0.7';
+            return true;
+        }
+        return false;
+    }
+
+    /*<![CDATA[*/
+    const resultFileUrl = /*[[${resultFileUrl}]]*/ null;
+    /*]]>*/
+
+    if (resultFileUrl) {
+        const fullUrl = window.location.origin + resultFileUrl;
+
+        // Link pou WhatsApp
+        const waLink = document.getElementById('whatsappShare');
+        if(waLink) {
+            waLink.href = "https://api.whatsapp.com/send?text=" + encodeURIComponent("Men fichye mwen konvèti a : " + fullUrl);
+        }
+
+        // Link pou Telegram
+        const tgLink = document.getElementById('telegramShare');
+        if(tgLink) {
+            tgLink.href = "https://t.me/share/url?url=" + encodeURIComponent(fullUrl) + "&text=Mon fichier converti";
+        }
+    }
+</script>
+
+</body>
+</html>
